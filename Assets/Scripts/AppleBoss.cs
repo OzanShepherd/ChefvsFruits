@@ -1,53 +1,92 @@
+using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(FruitEnemy))]
 public class AppleBoss : MonoBehaviour
 {
-    public float maxHealth = 10f;
-    public float moveSpeed = 1.5f;
+    [Header("Health & Phase Settings")]
+    public float phaseTwoThreshold = 6f;
 
-    private float currentHealth;
-    private Transform player;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [Header("Slice Minions (Assign in order in Inspector)")]
+    public List<GameObject> sliceMinions;
+
+    private FruitEnemy fruitEnemy;
+    private FollowPlayer followPlayer;
+    private int sliceIndexToSpawn = 0;
+    private bool waitingForMinionsToDie = false;
+    private bool inPhaseTwo = false;
+
     void Start()
     {
-        currentHealth = maxHealth;
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-        }
+        fruitEnemy = GetComponent<FruitEnemy>();
+        followPlayer = GetComponent<FollowPlayer>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (player == null) return;
-
-        //basic movement towards player
-        Vector3 direction = (player.position - transform.position);
-        direction.y = 0f;
-        direction.Normalize();
-        transform.position += direction * moveSpeed * Time.deltaTime;
-
-        //face the player
-        Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 5f * Time.deltaTime);
-    }
-
-    public void TakeDamage(float amount)
-    {
-        currentHealth -= amount;
-        Debug.Log("Apple boss took damage: " + currentHealth);
-
-        if (currentHealth <= 0f)
+        // Mid-phase: Waiting for minions to be defeated
+        if (waitingForMinionsToDie && AllSliceMinionsAreDead())
         {
-            Die();
+            BeginPhaseTwo();
         }
     }
 
-    private void Die()
+    public void NotifyDamageTaken(float currentHealth)
     {
-        Debug.Log("Apple Boss defeated!");
-        Destroy(gameObject);
+        // Phase 1: Spawn slice-minions after each hit above threshold
+        if (currentHealth > phaseTwoThreshold)
+        {
+            ActivateNextSliceMinion();
+        }
+        // Phase trigger: stop moving and wait for slice fight
+        else if (!inPhaseTwo && !waitingForMinionsToDie)
+        {
+            EnterSliceSummonPhase();
+        }
+    }
+
+    void ActivateNextSliceMinion()
+    {
+        if (sliceIndexToSpawn < sliceMinions.Count)
+        {
+            GameObject minion = sliceMinions[sliceIndexToSpawn];
+            if (minion != null)
+            {
+                minion.SetActive(true);
+            }
+            sliceIndexToSpawn++;
+        }
+    }
+
+    void EnterSliceSummonPhase()
+    {
+        waitingForMinionsToDie = true;
+        if (followPlayer != null)
+            followPlayer.enabled = false;
+
+        Debug.Log("Apple Boss has entered slice phase — minions active!");
+    }
+
+    bool AllSliceMinionsAreDead()
+    {
+        foreach (GameObject minion in sliceMinions)
+        {
+            if (minion != null && minion.activeSelf)
+                return false;
+        }
+        return true;
+    }
+
+    void BeginPhaseTwo()
+    {
+        inPhaseTwo = true;
+        waitingForMinionsToDie = false;
+
+        Debug.Log("Apple Boss begins Phase 2 — reabsorbing slices!");
+
+        if (followPlayer != null)
+            followPlayer.enabled = true;
+
+        // Optional: buff speed, unlock new abilities here
     }
 }

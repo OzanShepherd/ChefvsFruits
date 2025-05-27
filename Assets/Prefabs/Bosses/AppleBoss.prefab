@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 683211600819834103}
   - component: {fileID: 1377806905664180388}
   - component: {fileID: 9084628750899696630}
+  - component: {fileID: 1290953499614519721}
   m_Layer: 0
   m_Name: AppleBoss
   m_TagString: Untagged
@@ -151,5 +152,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 930cb66f07fce6c43ba3da034c91a301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  moveSpeed: 1.5
+  phaseTwoThreshold: 6
+  sliceMinions:
+  - {fileID: 2314961930944173554, guid: 1d59fed273115e248a2039b0a9137502, type: 3}
+  - {fileID: 1231655832115417000, guid: 5908728907097854aafed5a49e6f1da0, type: 3}
+  - {fileID: 2314961930944173554, guid: 3a2c06b5d59aa6a43842f348db4f7d55, type: 3}
+  - {fileID: 5476164387558131772, guid: df2a818b400069a46bbdad09b05bee9c, type: 3}
+--- !u!114 &1290953499614519721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7770096915318573485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b0c29a256eb9e24ab14767c7fe5b459, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 12
+  deathEffect: {fileID: 0}
